@@ -26,10 +26,10 @@ npm install
 
 # Set up environment
 cp .env.example .env
-# Edit .env with your GITHUB_TOKEN
+# Edit .env with your DATABASE_URL (Railway PostgreSQL) and GITHUB_TOKEN
 
-# Set up database
-npx prisma migrate dev
+# Push schema to database
+npx prisma db push
 
 # Run development server
 npm run dev
@@ -66,7 +66,7 @@ For local development, use [ngrok](https://ngrok.com) to expose localhost.
 - **Next.js 16** (App Router)
 - **TypeScript**
 - **Tailwind CSS v4**
-- **Prisma** with SQLite
+- **Prisma** with PostgreSQL
 - **GitHub API** for PR data
 - **OpenAI API** (or compatible) for AI explanations
 
