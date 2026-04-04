@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PRAnalysis {
+  id            Int      @id @default(autoincrement())
+  repoFullName  String
+  prNumber      Int
+  prTitle       String   @default("")
+  prUrl         String   @default("")
+  author        String   @default("")
+  mergedAt      DateTime?
+  baseBranch    String   @default("")
+  headBranch    String   @default("")
+  status        String   @default("pending") // pending, running, completed, failed
+  totalIssues   Int      @default(0)
+  criticalCount Int      @default(0)
+  highCount     Int      @default(0)
+  mediumCount   Int      @default(0)
+  lowCount      Int      @default(0)
+  score         Int      @default(100) // 0-100
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  issues Issue[]
+
+  @@index([repoFullName])
+}
+
+model Issue {
+  id          Int      @id @default(autoincrement())
+  analysisId  Int
+  category    String   // bug, security, complexity, quality
+  severity    String   // critical, high, medium, low, info
+  title       String
+  description String   @default("")
+  filePath    String   @default("")
+  lineNumber  Int?
+  codeSnippet String   @default("")
+  suggestion  String   @default("")
+  createdAt   DateTime @default(now())
+
+  analysis PRAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+}
