@@ -10,6 +10,7 @@ import {
   analyzeSecurity,
   analyzeComplexity,
   analyzeQuality,
+  analyzeWithAI,
 } from "./analyzers";
 
 const SEVERITY_PENALTY: Record<string, number> = {
@@ -118,12 +119,18 @@ export async function runAnalysis(
     let files = await getPRFiles(repo, prNumber);
     files = await enrichFilesWithContent(repo, headSha, files);
 
-    const allFindings: Finding[] = [
-      ...analyzeBugs(files),
-      ...analyzeSecurity(files),
-      ...analyzeComplexity(files),
-      ...analyzeQuality(files),
-    ];
+    // Run regex analyzers (instant) + AI reviewer (async) in parallel
+    const [regexFindings, aiFindings] = await Promise.all([
+      Promise.resolve([
+        ...analyzeBugs(files),
+        ...analyzeSecurity(files),
+        ...analyzeComplexity(files),
+        ...analyzeQuality(files),
+      ]),
+      analyzeWithAI(files),
+    ]);
+
+    const allFindings: Finding[] = [...regexFindings, ...aiFindings];
 
     const score = computeScore(allFindings);
 
